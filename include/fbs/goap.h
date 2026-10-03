@@ -2,10 +2,10 @@
  * fbs/goap.h — FinalBuildSystems goal-oriented action planner. C99, engine
  * independent, no libm.
  *
- * Model (decision: docs/decisions/goap.md §9): a DOMAIN registers atoms
- * (named int32 slots with a declared [min, max] range) and actions
- * (precondition rows with comparators, effect rows SET/ADD with clamping, an
- * integer base cost), then is sealed. A STATE is a caller-owned blob of slot
+ * Model: a DOMAIN registers atoms (named int32 slots with a declared
+ * [min, max] range) and actions (precondition rows with comparators,
+ * effect rows SET/ADD with clamping, an integer base cost), then is sealed.
+ * A STATE is a caller-owned blob of slot
  * values plus a "known" bitmap. A PLANNER owns the search memory for a sealed
  * domain (one allocation) and is reusable; planning is a pure function of
  * (domain, planner capacity, request): forward best-first search over states
@@ -144,7 +144,7 @@ fbs_goap_status fbs_goap_domain_seal(fbs_goap_domain *d);
 int fbs_goap_domain_is_sealed(const fbs_goap_domain *d);
 
 /* ------------------------------------------------------------------------- */
-/* State (caller-owned blob; layout in docs/decisions/goap.md §4.3)          */
+/* State (caller-owned blob: atom_count, known bitmap, one i32 per atom)     */
 /* ------------------------------------------------------------------------- */
 
 typedef struct fbs_goap_state fbs_goap_state;
@@ -260,7 +260,7 @@ fbs_goap_status fbs_goap_plan_validate(fbs_goap_planner *p, const fbs_goap_state
                                        size_t *out_first_invalid, int *out_goal_met);
 
 /* ------------------------------------------------------------------------- */
-/* Serialization (sealed domains only; schema in docs/decisions/goap.md §4.3) */
+/* Serialization (sealed domains only; little-endian "FBSG" version 1)       */
 /* ------------------------------------------------------------------------- */
 
 size_t fbs_goap_domain_serialized_size(const fbs_goap_domain *d); /* 0 for NULL or unsealed */

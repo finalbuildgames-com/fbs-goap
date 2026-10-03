@@ -4,8 +4,8 @@
  * Self-contained: no test framework. Exit code = number of failures (clamped
  * to 100 so it survives the 8-bit exit status; the true count is printed).
  *
- * Covers docs/decisions/goap.md §6: T-1 .. T-13, T-15 and T-16 (T-14, the
- * combined GOAP + factions + attributes demo, is tests/test_goap_demo.c), plus
+ * Covers witnesses T-1 .. T-13, T-15 and T-16 (T-14, a combined demo with
+ * other modules, is not part of this suite), plus
  * NULL/bad-enum validation on every entry point, allocator failure, every
  * capacity exhaustion, every E_TRUNCATED path, the status-name/version
  * functions and two committed golden fixtures.
@@ -219,9 +219,10 @@ static unsigned char *serialize_alloc(const fbs_goap_domain *d, size_t *out_len)
 }
 
 /* ------------------------------------------------------------------------- */
-/* The GPGOAP soldier domain (docs/decisions/goap.md §6 T-1, GPGOAP           */
-/* README.md:29-35). Unit costs; both plans below are hand-computed and both  */
-/* appear in that README, so a disagreement is a real signal.                 */
+/* The GPGOAP soldier domain (T-1), from README.md:29-35 of                  */
+/* https://github.com/stolk/GPGOAP. Unit costs; both plans below are         */
+/* hand-computed and both appear in that README, so a disagreement is a      */
+/* real signal.                                                              */
 /* ------------------------------------------------------------------------- */
 
 typedef struct {
@@ -952,8 +953,8 @@ static void test_t7_numeric_state(void) {
     CHECK(v == 10);
   }
 
-  /* ADD on an UNKNOWN slot: the canonical zero of §4.3 rule 2 is the base, and
-   * the slot becomes known */
+  /* ADD on an UNKNOWN slot: the canonical zero an unknown slot holds is the
+   * base, and the slot becomes known */
   {
     state_buf ub;
     fbs_goap_state *u = state_new(d, &ub);
@@ -1642,7 +1643,7 @@ static void test_t11_proc_pre(void) {
 }
 
 /* ------------------------------------------------------------------------- */
-/* T-12 — state schema (docs/decisions/goap.md §4.3)                         */
+/* T-12 — state schema (atom_count, known bitmap, values)                    */
 /* ------------------------------------------------------------------------- */
 
 static void test_t12_state_schema(void) {

@@ -4,10 +4,11 @@
  *
  * Design owes its problem framing (atoms, actions with preconditions, effects
  * and a cost, a procedural-precondition hook, a node cap, replanning from the
- * current state) to Narratech's GOAP NPC, which is MIT upstream and vendored
- * at third_party/narratech/; no line of that plugin is reproduced here. The
- * model, the search and the schemas are ours: docs/decisions/goap.md §4.1,
- * §4.3, §9. Every defect listed in §5 (G-1 .. G-18) is designed out:
+ * current state) to Narratech's GOAP NPC, which is MIT upstream; its license
+ * is vendored at third_party/narratech/ and no line of that plugin is
+ * reproduced here. The model, the search and the schemas are ours. Every
+ * defect found in that plugin's planner (labelled G-1 .. G-18) is designed
+ * out:
  *
  *   G-1/G-3  node identity is (byte-exact state blob, depth), hashed FNV-1a 64
  *            with a memcmp fallback; the closed set is consulted and a state
@@ -52,7 +53,7 @@
 #define FBS_GOAP_MAX_NODES_LIMIT 4194304u /* 1 << 22 */
 #define FBS_GOAP_MAX_DEPTH_LIMIT 65535u
 
-/* Domain blob record sizes (docs/decisions/goap.md §4.3). */
+/* Domain blob ("FBSG" version 1) header and record sizes. */
 #define FBS_GOAP_HEADER_BYTES 28u
 #define FBS_GOAP_ATOM_BYTES 20u
 #define FBS_GOAP_ACTION_BYTES 20u
@@ -182,9 +183,9 @@ struct fbs_goap_domain {
   char *keys;
 };
 
-/* The state blob of docs/decisions/goap.md §4.3: atom_count, the known bitmap,
- * then one i32 value per atom in atom id order. Unknown slots hold a canonical
- * zero so identity is memcmp and hashing is safe. */
+/* The state blob: atom_count, the known bitmap, then one i32 value per atom
+ * in atom id order. Unknown slots hold a canonical zero so identity is memcmp
+ * and hashing is safe. */
 struct fbs_goap_state {
   uint32_t atom_count;
   uint32_t data[1]; /* known bitmap words, then values; see the accessors */
@@ -854,7 +855,7 @@ fbs_goap_status fbs_goap_state_unset(const fbs_goap_domain *d, fbs_goap_state *s
   if (st != FBS_GOAP_OK) return st;
   if (!fbs_atom_ok(d, a)) return FBS_GOAP_E_INVALID;
   /* The value word is forced back to the canonical zero, which is what keeps
-   * fbs_goap_state_equal a plain memcmp (§4.3 rule 2). */
+   * fbs_goap_state_equal a plain memcmp. */
   fbs_state_values(s, d->atom_count)[a] = 0;
   fbs_slot_unmark(s, a);
   return FBS_GOAP_OK;
@@ -938,7 +939,7 @@ int fbs_goap_state_satisfies(const fbs_goap_domain *d, const fbs_goap_state *s,
 }
 
 /* Applies the effect rows of `act` to `s`. Both SET and ADD leave the slot
- * KNOWN: an unknown slot reads as the canonical zero of §4.3 rule 2, so
+ * KNOWN: an unknown slot reads as the canonical zero it always holds, so
  * "slot += value" on an unknown slot is clamp(0 + value) and the slot then has
  * a value. This is the only reading under which every effect is total. */
 static void fbs_apply_effects(const fbs_goap_domain *d, fbs_goap_state *s, fbs_goap_action act) {
@@ -1511,7 +1512,7 @@ fbs_goap_status fbs_goap_plan_validate(fbs_goap_planner *p, const fbs_goap_state
 }
 
 /* ------------------------------------------------------------------------- */
-/* Serialization (docs/decisions/goap.md §4.3)                               */
+/* Serialization (domain blob "FBSG" version 1, little-endian)               */
 /* ------------------------------------------------------------------------- */
 
 static void fbs_put_u16(unsigned char *p, unsigned v) {
