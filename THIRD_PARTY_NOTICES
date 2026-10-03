@@ -1,0 +1,42 @@
+# Third-party notices
+
+The MIT license covers Final Build Games' original contributions. Third-party
+components and adapted portions retain the terms reproduced below.
+
+## third_party/narratech/LICENSE-GOAP_NPC
+
+MIT License
+
+Copyright (c) 2026 Narratech Laboratories
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+## third_party/narratech/NOTICE.md
+
+# Narratech GOAP NPC (MIT)
+
+`src/goap.c` is an original C design that takes its problem framing (atoms, actions with preconditions/effects/cost, procedural preconditions, node cap, replanning from the current state) from the MIT-licensed plugin below, whose `Source/` tree is byte-identical to the owned Fab build `GOAP_4.27` (see `docs/decisions/goap.md` §2). No code is copied; the notice is vendored to close the license question.
+
+| Upstream | Commit | License file |
+|---|---|---|
+| https://github.com/narratech/GOAP_NPC | `1870e52f5227b338e185f8759e75e2f908f33e9a` (tag `v2.1.1` identical) | `LICENSE-GOAP_NPC` (Copyright (c) 2026 Narratech Laboratories, MIT) |
+
+
+No vendored third-party code or assets. Standard C library only.

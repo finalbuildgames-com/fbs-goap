@@ -1,0 +1,2 @@
+scout approach detonatebomb
+scout load aim shoot

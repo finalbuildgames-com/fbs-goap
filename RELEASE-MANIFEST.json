@@ -1,0 +1,14 @@
+{
+  "module": "goap",
+  "source_commit": "71c93f0178003eb557290a63519bc8507538eb5b",
+  "source_files": [
+    "src/goap.c",
+    "include/fbs/goap.h",
+    "tests/test_goap.c",
+    "tests/fixtures/goap/soldier-plan.txt",
+    "tests/fixtures/goap/soldier.bin",
+    "third_party/narratech/LICENSE-GOAP_NPC",
+    "third_party/narratech/NOTICE.md"
+  ],
+  "history": "fresh initial commit, later squashed snapshots"
+}
