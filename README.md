@@ -28,7 +28,7 @@ You describe a world as integer slots and a set of actions, give the planner a s
 - **Two heuristics, no custom one.** `FBS_GOAP_H_ZERO` (uniform-cost search) or `FBS_GOAP_H_MAX_UNSAT` (admissible). You cannot plug in your own.
 - **Simple effects.** One effect per action per atom, applied unconditionally. Hierarchical or partial-order planning is out of scope.
 - **Fixed domains.** Registration ends at seal. Changing a domain means `fbs_goap_domain_clear` and rebuilding it, and a domain must outlive its planners and must not be cleared while they exist.
-- **No threads inside.** Planning is single-threaded; parallelism is up to you (see Design notes).
+- **No threads inside.** Planning is synchronous on the caller's thread; there is no incremental step API. The node/depth caps bound one request, while scheduling requests across NPCs and executing returned actions remain host responsibilities (see Design notes).
 
 ## Example
 
@@ -85,17 +85,22 @@ It prints a four-step plan of cost 4. Build it as an executable that links `fbs:
 
 ## Build and test
 
+Run from this repository's root. In addition to CMake and the compiler named
+below, install the build tool selected by your generator (for example Make or
+Ninja).
+
 Requires CMake 3.16+ and a C99 compiler. There are no dependencies beyond the standard C library and no vendored code. The CMake build links `m` on non-MSVC toolchains, though the planner itself makes no libm calls.
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-cmake --build build --parallel 2
-ctest --test-dir build --output-on-failure --no-tests=error
+cmake --build build --parallel 1
+(cd build && ctest --output-on-failure)
 ```
 
 This runs two CTest tests. `goap` runs `tests/test_goap.c`, a self-contained test program covering optimal plans, proven unsolvability versus the node cap, depth-cap correctness, replanning and cost overrides, the `proc_pre` contract, `ADD` clamping, truncated outputs, every capacity limit, allocator failure, NULL and bad-enum arguments on every entry point, serialization round trips with 4000 random byte flips, and two golden fixtures in `tests/fixtures/goap/` (a serialized domain and its expected plans). `goap_example` runs `fbs_goap_example` (`examples/basic.c`), which creates a default domain and prints the API version.
 
-Options: `FBS_BUILD_TESTS` and `FBS_BUILD_EXAMPLES`, both `ON` by default. `cmake --install` installs the library and header but no CMake package config file, so consume the library with `add_subdirectory` or FetchContent:
+Options: `FBS_BUILD_TESTS` and `FBS_BUILD_EXAMPLES`, both `ON` by default.
+Consume the source with `add_subdirectory` or FetchContent:
 
 ```cmake
 include(FetchContent)
@@ -107,6 +112,26 @@ target_link_libraries(your_target PRIVATE fbs::goap)
 ```
 
 This repository ships the C library only. No engine adapters or language bindings are included.
+
+## Build modes and installation
+
+`BUILD_SHARED_LIBS=ON` builds a shared library; the default is static.
+`FBS_BUILD_TESTS` and `BUILD_TESTING` together enable the core test.
+`FBS_BUILD_EXAMPLES` controls `fbs_goap_example`; its CTest entry also requires
+`BUILD_TESTING`. For a library-only build, set `FBS_BUILD_TESTS=OFF` and
+`FBS_BUILD_EXAMPLES=OFF`.
+
+```sh
+cmake --install build --prefix "$PWD/install"
+```
+
+Installation supplies [the public header](include/fbs/goap.h), the library,
+license notices and `FinalBuildGoapTargets.cmake` under
+`${CMAKE_INSTALL_LIBDIR}/cmake/FinalBuildGoap`. It supplies no package config or
+version config, so `find_package(FinalBuildGoap)` is unavailable. A consumer may
+include the installed targets file explicitly and link `fbs::goap`, or use
+the source integration above. The [minimal program](examples/basic.c) and
+[core tests](tests/test_goap.c) show the implemented entry points.
 
 ## Design notes
 
